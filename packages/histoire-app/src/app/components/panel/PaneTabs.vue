@@ -7,6 +7,7 @@ import BaseOverflowTab from '../base/BaseOverflowTab.vue'
 import BaseTab from '../base/BaseTab.vue'
 import BaseTag from '../base/BaseTag.vue'
 import { useStoryDoc } from './StoryDocs.vue'
+import { usePanelsStore } from "../../stores/panels";
 
 const props = defineProps<{
   story: Story
@@ -17,6 +18,7 @@ const { story } = toRefs(props)
 
 const { renderedDoc } = useStoryDoc(story)
 
+const panelsStore = usePanelsStore()
 const eventsStore = useEventsStore()
 const hasEvents = computed(() => eventsStore.events.length)
 </script>
@@ -49,6 +51,16 @@ const hasEvents = computed(() => eventsStore.events.length)
       <BaseTag v-if="eventsStore.unseen">
         {{ eventsStore.unseen <= 99 ? eventsStore.unseen : "99+" }}
       </BaseTag>
+    </BaseTab>
+    <BaseTab
+      v-for="panel in panelsStore.customPanels"
+      :to="{ ...$route, query: { ...$route.query, tab: panel.slug } }"
+      :matched="$route.query.tab === panel.slug"
+      :class="{
+        'htw-opacity-50': !hasEvents,
+      }"
+    >
+      {{ panel.title }}
     </BaseTab>
 
     <template #overflow>

@@ -54,6 +54,13 @@ export interface PreviewSettings {
   textDirection: 'ltr' | 'rtl'
 }
 
+export interface CustomPanel {
+  id: string | number
+  slug: string
+  title: string
+  component: any
+}
+
 declare module 'vue' {
   interface ComponentCustomProperties {
     __HISTOIRE_DEV__: boolean

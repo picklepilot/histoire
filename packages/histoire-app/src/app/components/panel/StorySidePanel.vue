@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStoryStore } from '../../stores/story'
+import { usePanelsStore } from '../../stores/panels'
 
 import BaseEmpty from '../base/BaseEmpty.vue'
 import BaseSplitPane from '../base/BaseSplitPane.vue'
@@ -12,8 +13,19 @@ import StoryEvents from './StoryEvents.vue'
 import StorySourceCode from './StorySourceCode.vue'
 
 const storyStore = useStoryStore()
+const panelsStore = usePanelsStore()
 
 const route = useRoute()
+
+const endpoints = computed(() => ['docs', 'events', ...panelsStore.customPanels.map(p => p.slug)])
+const componentMapping = computed(() => ({
+  docs: StoryDocs,
+  events: StoryEvents,
+  ...panelsStore.customPanels.reduce((acc, panel) => {
+    acc[panel.slug] = panel.component
+    return acc
+  }, {}),
+}))
 
 const panelContentComponent = computed(() => {
   switch (route.query.tab) {
@@ -25,9 +37,11 @@ const panelContentComponent = computed(() => {
       return StoryControls
   }
 })
+
 </script>
 
 <template>
+
   <BaseEmpty
     v-if="!storyStore.currentVariant"
     class="histoire-story-side-panel histoire-selection"
@@ -57,7 +71,7 @@ const panelContentComponent = computed(() => {
         />
 
         <component
-          :is="panelContentComponent"
+          :is="componentMapping[route.query.tab as string]"
           :story="storyStore.currentStory"
           :variant="storyStore.currentVariant"
           class="htw-h-full htw-overflow-auto"
